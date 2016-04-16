@@ -15,6 +15,8 @@ set the NewRelic.AppName property.
 3. Begin POSTing data to `/api/values`.
 4. While the server is waiting for the data to finish being uploaded, close the socket.
 5. In New Relic, observe that a "500 - Internal Server Error" was reported.
+However, IIS doesn't log a 500 error, and capturing network traffic
+shows no 500 response being sent over the wire.
 
 One easy way to accomplish step 4 is to send an `Expect: 100-continue`
 header; when the server responds with `100 Continue`, close the connection.
@@ -70,9 +72,9 @@ HTTP protocol stack driver. Interestingly, this response seems to
 be generated at such a low level that the 400 response is not
 logged to the IIS log (C:\inetpub\logs\LogFiles\W3SVC*n*\u_ex*yymmdd*.log).
 
-However, right after this 400 response is sent, the .NET New Relic
-Agent logs a 500 Internal Server Error. The New Relic agent log
-will contain lines similar to the following:
+Right after this 400 response is sent, the New Relic .NET Agent logs
+a 500 Internal Server Error. The New Relic agent log will contain lines
+similar to the following:
 
 ```
 2016-04-16 04:59:59,363 NewRelic INFO: The New Relic .NET Agent v5.17.59.0 started (pid 3368) for virtual path '/'
