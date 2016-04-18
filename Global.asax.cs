@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -22,7 +23,20 @@ namespace WebApplication1
 		protected void Application_BeginRequest(object sender, EventArgs eventArgs)
 		{
 			if (HttpContext.Current?.Request?.Path == "/api/values")
+			{
 				SetTransactionName("Api", "Values");
+				HttpContext.Current.Response.Filter = new LoggingStream(HttpContext.Current.Response.Filter);
+			}
+		}
+		protected void Application_EndRequest(object sender, EventArgs eventArgs)
+		{
+			if (HttpContext.Current?.Request?.Path == "/api/values")
+			{
+				var response = HttpContext.Current.Response;
+				var output = ((LoggingStream) response.Filter).DumpData();
+				Trace.TraceInformation("Response Status: {0}", response.Status);
+				Trace.TraceInformation("Response Body: {0}", output);
+			}
 		}
 	}
 }
