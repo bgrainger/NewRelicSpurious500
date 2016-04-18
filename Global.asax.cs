@@ -30,9 +30,12 @@ namespace WebApplication1
 		}
 		protected void Application_EndRequest(object sender, EventArgs eventArgs)
 		{
+			var response = HttpContext.Current.Response;
+			if (response.StatusCode == 500 && !response.IsClientConnected)
+				IgnoreTransaction();
+
 			if (HttpContext.Current?.Request?.Path == "/api/values")
 			{
-				var response = HttpContext.Current.Response;
 				var output = ((LoggingStream) response.Filter).DumpData();
 				Trace.TraceInformation("Response Status: {0}", response.Status);
 				Trace.TraceInformation("Response Body: {0}", output);
